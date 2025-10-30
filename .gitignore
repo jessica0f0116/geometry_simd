@@ -1,0 +1,35 @@
+# Build directories
+build/
+cmake-build-*/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compiled files
+*.o
+*.so
+*.a
+*.dylib
+*.exe
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+
+# Test/Benchmark outputs
+*.gcda
+*.gcno
+*.gcov
+coverage.info
+*.profdata
+*.profraw
+
+# OS files
+.DS_Store
+Thumbs.db
