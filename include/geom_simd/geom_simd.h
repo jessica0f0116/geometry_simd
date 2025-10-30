@@ -20,6 +20,15 @@ struct PolylineSoA {
     std::vector<double> y;
     
     size_t size() const { return x.size(); }
+
+    // Add this helper
+    struct PointView {
+        double x, y;
+    };
+    
+    PointView operator[](size_t i) const {
+        return {x[i], y[i]};
+    }
 };
 
 /// A polyline represented as a sequence of points
