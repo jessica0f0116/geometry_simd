@@ -228,8 +228,8 @@ void rdpr_avx512_soa(const PolylineSoA& points,
     if (max_dist_sq > tolerance_sq) {
         assert(max_idx > start && max_idx < end);
         keep[max_idx] = true;
-        rdpr_avx512(points, start, max_idx, tolerance_sq, keep);
-        rdpr_avx512(points, max_idx, end, tolerance_sq, keep);
+        rdpr_avx512_soa(points, start, max_idx, tolerance_sq, keep);
+        rdpr_avx512_soa(points, max_idx, end, tolerance_sq, keep);
     }
 }
 
