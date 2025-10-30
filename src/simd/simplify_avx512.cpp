@@ -136,7 +136,6 @@ void rdpr_avx512(const Polyline& points,
 }
 
 void rdpr_avx512_soa(const PolylineSoA& points,
-
                                size_t start,
                                size_t end,
                                double tolerance_sq,
@@ -175,8 +174,8 @@ void rdpr_avx512_soa(const PolylineSoA& points,
     // **refactor to separate function? cleaner
     for (; i + 7 < end; i += 8) {
         // contiguous stride 1 loads now :)
-        __m512d px = _mm512_loadu_pd(&input.x[i]);
-        __m512d py = _mm512_loadu_pd(&input.y[i]);
+        __m512d px = _mm512_loadu_pd(&points.x[i]);
+        __m512d py = _mm512_loadu_pd(&points.y[i]);
 
         // Calculate 8 distances in parallel
         // calculate some intermediate values
@@ -246,8 +245,10 @@ Polyline simplify_avx512(const Polyline& input, double tolerance) {
     keep[0] = true;  // Always keep first point
     keep[input.size() - 1] = true;  // Always keep last point
     
+    // wire for SoA
+    auto soa = to_soa(input);
     // Run the recursive algorithm
-    rdpr_avx512(input, 0, input.size() - 1, tolerance_sq, keep);
+    rdpr_avx512_soa(soa, 0, input.size() - 1, tolerance_sq, keep);
     
     // Build the result
     Polyline result;
