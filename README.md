@@ -11,13 +11,23 @@ SIMD-optimized geospatial algorithms for polygon and polyline operations. I want
 
 ## Current Status
 
-🚧 **Phase 1**: Douglas-Peucker polyline simplification
+🎃 Douglas-Peucker polyline simplification
 - [x] Scalar baseline implementation
 - [x] Unit tests with known geometries
 - [x] Benchmark harness
 - [ ] AVX2 implementation
 - [x] AVX-512 implementation
 - [ ] ARM NEON implementation
+- [ ] Property tests / integration tests
+
+🍰 Polygon clipping algos
+- [ ] Add Polygon type
+- [ ] Implement basic poly operations (area+contains point)
+- [ ] Add edge intersections (scalar+AVX)
+- [ ] Unit tests and benchmarks for edge intersection
+- [ ] Implement Sutherland-Hodgman (convex only) and vectorize core loops
+- [ ] Implement Greiner-Hormann and vectorize intersection finding
+- [ ] Edge cases (degenerate polys, touching edges, and so forth)
 
 ## Building
 

@@ -62,8 +62,8 @@ struct PolylineSoA {
     }
 };
 
-/// A polyline represented as a sequence of points
-using Polyline = std::vector<Point>;
+// A polyline represented as a sequence of points
+using Polyline = std::vector<Point>; // maybe keep for now until other implementation are finised
 
 /// Simplification algorithm selection
 enum class SimplifyAlgorithm {
