@@ -9,14 +9,14 @@ namespace internal {
  * Scalar baseline implementation of Douglas-Peucker simplification.
  * This is the reference implementation for correctness testing.
  */
-Polyline simplify_scalar(const Polyline& input, double tolerance);
+PolylineSoA simplify_scalar(const PolylineSoA& input, double tolerance);
 
 #ifdef HAVE_AVX2
 /**
  * AVX2 SIMD implementation of Douglas-Peucker simplification.
  * Uses 256-bit vectors to process 4 doubles at once.
  */
-Polyline simplify_avx2(const Polyline& input, double tolerance);
+PolylineSoA simplify_avx2(const PolylineSoA& input, double tolerance);
 #endif
 
 #ifdef HAVE_AVX512
@@ -24,7 +24,7 @@ Polyline simplify_avx2(const Polyline& input, double tolerance);
  * AVX-512 SIMD implementation of Douglas-Peucker simplification.
  * Uses 512-bit vectors to process 8 doubles at once.
  */
-Polyline simplify_avx512(const Polyline& input, double tolerance);
+PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance);
 #endif
 
 #ifdef HAVE_NEON
@@ -32,7 +32,7 @@ Polyline simplify_avx512(const Polyline& input, double tolerance);
  * ARM NEON SIMD implementation of Douglas-Peucker simplification.
  * Uses 128-bit vectors to process 2 doubles at once.
  */
-Polyline simplify_neon(const Polyline& input, double tolerance);
+PolylineSoA simplify_neon(const PolylineSoA& input, double tolerance);
 #endif
 
 /**

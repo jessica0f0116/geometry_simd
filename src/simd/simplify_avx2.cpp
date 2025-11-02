@@ -6,7 +6,7 @@ namespace internal {
 
 #ifdef HAVE_AVX2
 
-Polyline simplify_avx2(const Polyline& input, double tolerance) {
+PolylineSoA simplify_avx2(const PolylineSoA& input, double tolerance) {
     // TODO: Implement AVX2 version
     // 
     // Key optimizations:

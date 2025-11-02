@@ -39,7 +39,7 @@ SIMDCapabilities get_simd_capabilities() {
     return caps;
 }
 
-Polyline simplify(const Polyline& input, 
+PolylineSoA simplify(const PolylineSoA& input, 
                   double tolerance,
                   SimplifyAlgorithm algorithm) {
     // Early exit for trivial cases

@@ -5,15 +5,15 @@
 using namespace geom;
 
 // Helper to check if two points are approximately equal
-bool points_equal(const Point& a, const Point& b, double epsilon = 1e-9) {
-    return std::abs(a.x - b.x) < epsilon && std::abs(a.y - b.y) < epsilon;
+bool points_equal(double ax, double ay, double bx, double by, double epsilon = 1e-9) {
+    return std::abs(ax - bx) < epsilon && std::abs(ay - by) < epsilon;
 }
 
 // Helper to check if two polylines are equal
-bool polylines_equal(const Polyline& a, const Polyline& b, double epsilon = 1e-9) {
+bool polylines_equal(const PolylineSoA& a, const PolylineSoA& b, double epsilon = 1e-9) {
     if (a.size() != b.size()) return false;
     for (size_t i = 0; i < a.size(); ++i) {
-        if (!points_equal(a[i], b[i], epsilon)) return false;
+        if (!points_equal(a[i].x, a[i].y, b[i].x, b[i].y, epsilon)) return false;
     }
     return true;
 }
@@ -21,7 +21,7 @@ bool polylines_equal(const Polyline& a, const Polyline& b, double epsilon = 1e-9
 class SimplifyTest : public ::testing::Test {
 protected:
     // Test case from Douglas-Peucker paper
-    Polyline create_test_line() {
+    PolylineSoA create_test_line() {
         return {
             {0, 0},
             {1, 0.1},
@@ -37,7 +37,7 @@ protected:
     }
     
     // Simple square
-    Polyline create_square() {
+    PolylineSoA create_square() {
         return {
             {0, 0},
             {0, 10},
@@ -48,30 +48,30 @@ protected:
     }
     
     // Zigzag pattern
-    Polyline create_zigzag() {
-        Polyline line;
+    PolylineSoA create_zigzag() {
+        PolylineSoA line;
         for (int i = 0; i < 20; ++i) {
-            line.push_back({static_cast<double>(i), (i % 2) * 0.5});
+            line.push_back(static_cast<double>(i), (i % 2) * 0.5);
         }
         return line;
     }
 };
 
 TEST_F(SimplifyTest, EmptyLine) {
-    Polyline empty;
+    PolylineSoA empty;
     auto result = simplify(empty, 1.0);
     EXPECT_TRUE(result.empty());
 }
 
 TEST_F(SimplifyTest, SinglePoint) {
-    Polyline single = {{1.0, 2.0}};
+    PolylineSoA single = {{1.0, 2.0}};
     auto result = simplify(single, 1.0);
     EXPECT_EQ(result.size(), 1);
-    EXPECT_TRUE(points_equal(result[0], single[0]));
+    EXPECT_TRUE(points_equal(result[0].x, result[0].y, single[0].x, single[0].y));
 }
 
 TEST_F(SimplifyTest, TwoPoints) {
-    Polyline two = {{0, 0}, {10, 10}};
+    PolylineSoA two = {{0, 0}, {10, 10}};
     auto result = simplify(two, 1.0);
     EXPECT_EQ(result.size(), 2);
     EXPECT_TRUE(polylines_equal(result, two));
@@ -82,8 +82,8 @@ TEST_F(SimplifyTest, PreservesEndpoints) {
     auto result = simplify(line, 1.0);
     
     EXPECT_GE(result.size(), 2);
-    EXPECT_TRUE(points_equal(result.front(), line.front()));
-    EXPECT_TRUE(points_equal(result.back(), line.back()));
+    EXPECT_TRUE(points_equal(result.x.front(), result.y.front(), line.x.front(), line.y.front()));
+    EXPECT_TRUE(points_equal(result.x.back(), result.y.back(), line.x.back(), line.y.back()));
 }
 
 TEST_F(SimplifyTest, LargeToleranceRemovesPoints) {
@@ -122,13 +122,13 @@ TEST_F(SimplifyTest, ZigzagWithLargeTolerance) {
 }
 
 TEST_F(SimplifyTest, StraightLineUnchanged) {
-    Polyline straight = {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}};
+    PolylineSoA straight = {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}};
     auto result = simplify(straight, 0.01);
     
     // Should reduce to just endpoints (all intermediate points are collinear)
     EXPECT_EQ(result.size(), 2);
-    EXPECT_TRUE(points_equal(result[0], straight.front()));
-    EXPECT_TRUE(points_equal(result[1], straight.back()));
+    EXPECT_TRUE(points_equal(result[0].x, result[0].y, straight.x.front(), straight.y.front()));
+    EXPECT_TRUE(points_equal(result[1].y, result[1].y, straight.x.back(), straight.y.back()));
 }
 
 // Test all implementations produce consistent results

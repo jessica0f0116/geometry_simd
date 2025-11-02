@@ -6,7 +6,7 @@ namespace internal {
 
 #ifdef HAVE_NEON
 
-Polyline simplify_neon(const Polyline& input, double tolerance) {
+PolylineSoA simplify_neon(const PolylineSoA& input, double tolerance) {
     // TODO: Implement ARM NEON version
     //
     // Key optimizations:

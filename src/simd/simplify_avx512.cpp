@@ -16,7 +16,7 @@ namespace internal {
  * @param tolerance Squared tolerance threshold
  * @param keep Bitmask of which points to keep
  */
-void rdpr_avx512(const Polyline& points,
+void rdpr_avx512(const PolylineSoA& points,
                                size_t start,
                                size_t end,
                                double tolerance_sq,
@@ -29,8 +29,8 @@ void rdpr_avx512(const Polyline& points,
         return;
     }
     
-    const Point& p_start = points[start];
-    const Point& p_end = points[end];
+    auto p_start = points[start];
+    auto p_end = points[end];
     double max_dist_sq = 0.0;
     // probably not worth it perf-wise to vectorize the max index tracking
     // since it would require an extra horizontal operation
@@ -232,11 +232,11 @@ void rdpr_avx512_soa(const PolylineSoA& points,
     }
 }
 
-Polyline simplify_avx512(const Polyline& input, double tolerance) {
+PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance) {
     // wire for SoA
-    auto soa = to_soa(input);
+    // auto soa = to_soa(input);
 
-    if (soa.size() <= 2) {
+    if (input.size() <= 2) {
         return input;
     }
     
@@ -244,21 +244,21 @@ Polyline simplify_avx512(const Polyline& input, double tolerance) {
     double tolerance_sq = tolerance * tolerance;
     
     // Mark which points to keep
-    std::vector<bool> keep(soa.size(), false);
+    std::vector<bool> keep(input.size(), false);
     keep[0] = true;  // Always keep first point
-    keep[soa.size() - 1] = true;  // Always keep last point
+    keep[input.size() - 1] = true;  // Always keep last point
     
     // Run the recursive algorithm
-    rdpr_avx512_soa(soa, 0, soa.size() - 1, tolerance_sq, keep);
+    rdpr_avx512_soa(input, 0, input.size() - 1, tolerance_sq, keep);
     
     // Build the result
-    Polyline result;
-    auto aos = to_aos(soa);
-    result.reserve(aos.size());  // Upper bound
+    PolylineSoA result;
+    // auto aos = to_aos(soa);
+    result.reserve(input.size());  // Upper bound
     
-    for (size_t i = 0; i < aos.size(); ++i) {
+    for (size_t i = 0; i < input.size(); ++i) {
         if (keep[i]) {
-            result.push_back(aos[i]);
+            result.push_back(input[i].x, input[i].y);
         }
     }
     

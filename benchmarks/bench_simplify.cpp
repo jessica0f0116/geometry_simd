@@ -15,10 +15,10 @@ public:
         coastline = benchmark_data::generate_coastline(num_points);
     }
     
-    Polyline test_line;
-    Polyline sine_wave;
-    Polyline noisy_line;
-    Polyline coastline;
+    PolylineSoA test_line;
+    PolylineSoA sine_wave;
+    PolylineSoA noisy_line;
+    PolylineSoA coastline;
 };
 
 // Scalar implementation benchmarks
