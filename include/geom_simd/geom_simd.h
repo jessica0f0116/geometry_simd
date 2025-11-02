@@ -14,8 +14,56 @@ struct Point {
     Point(double x_, double y_) : x(x_), y(y_) {}
 };
 
-/// A polyline represented as a sequence of points
-using Polyline = std::vector<Point>;
+// Add new SoA type for now
+struct PolylineSoA {
+    std::vector<double> x;
+    std::vector<double> y;
+
+    // default constructor
+    PolylineSoA() = default;
+
+    // point list initializer for tests
+    PolylineSoA(std::initializer_list<std::pair<double, double>> points) {
+        x.reserve(points.size());
+        y.reserve(points.size());
+        for (const auto& [px, py] : points) {
+            x.push_back(px);
+            y.push_back(py);
+        }
+    }
+
+    size_t size() const { return x.size(); }
+    bool empty() const { return x.empty(); }
+        
+    void reserve(size_t n) {
+        x.reserve(n);
+        y.reserve(n);
+    }
+        
+    // **maybe add encapsulation to reduce public api surface?
+    // **would also make it easier to validate x and y are same size
+    void push_back(double px, double py) {
+        x.push_back(px);
+        y.push_back(py);
+    }
+        
+    void clear() {
+        x.clear();
+        y.clear();
+    }
+        
+    struct PointView {
+        double x, y;
+    };
+        
+    PointView operator[](size_t i) const {
+        // assert(i < size());
+        return {x[i], y[i]};
+    }
+};
+
+// A polyline represented as a sequence of points
+using Polyline = std::vector<Point>; // maybe keep for now until other implementation are finised
 
 /// Simplification algorithm selection
 enum class SimplifyAlgorithm {
@@ -40,7 +88,7 @@ enum class SimplifyAlgorithm {
  *
  * Note: The first and last points are always preserved.
  */
-Polyline simplify(const Polyline& input, 
+PolylineSoA simplify(const PolylineSoA& input, 
                   double tolerance,
                   SimplifyAlgorithm algorithm = SimplifyAlgorithm::AUTO);
 

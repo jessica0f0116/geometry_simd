@@ -7,21 +7,11 @@ namespace internal {
 
 #ifdef HAVE_AVX512
 
-/**
- * Vectorized recursive Douglas-Peucker implementation.
- * 
- * @param points Input points
- * @param start Start index (inclusive)
- * @param end End index (inclusive)
- * @param tolerance Squared tolerance threshold
- * @param keep Bitmask of which points to keep
- */
-void rdpr_avx512(const Polyline& points,
+void rdpr_avx512(const PolylineSoA& points,
                                size_t start,
                                size_t end,
                                double tolerance_sq,
                                std::vector<bool>& keep) {
-
     // this function is potentially ~similar speed to scalar for polylines with
     // *randomly distributed* points, probably due to branch misprediction?
     // the more points that can be obviated, the less recursion, faster speedup
@@ -29,8 +19,8 @@ void rdpr_avx512(const Polyline& points,
         return;
     }
     
-    const Point& p_start = points[start];
-    const Point& p_end = points[end];
+    auto p_start = points[start];
+    auto p_end = points[end];
     double max_dist_sq = 0.0;
     // probably not worth it perf-wise to vectorize the max index tracking
     // since it would require an extra horizontal operation
@@ -55,30 +45,9 @@ void rdpr_avx512(const Polyline& points,
     // Hot loop
     // **refactor to separate function? cleaner
     for (; i + 7 < end; i += 8) {
-        // Load 8 x-coordinates with stride 2
-        // **Should I refactor and use SoA instead of AoS to make it stride 1? Might help, annoying refactor though
-        __m512d px = _mm512_set_pd(
-            points[i+7].x,
-            points[i+6].x,
-            points[i+5].x,
-            points[i+4].x,
-            points[i+3].x,
-            points[i+2].x,
-            points[i+1].x,
-            points[i].x
-        );
-
-        // Load 8 y-coordinates with stride 2
-        __m512d py = _mm512_set_pd(
-            points[i+7].y,
-            points[i+6].y,
-            points[i+5].y,
-            points[i+4].y,
-            points[i+3].y,
-            points[i+2].y,
-            points[i+1].y,
-            points[i].y
-        );
+        // contiguous stride 1 loads now :)
+        __m512d px = _mm512_loadu_pd(&points.x[i]);
+        __m512d py = _mm512_loadu_pd(&points.y[i]);
 
         // Calculate 8 distances in parallel
         // calculate some intermediate values
@@ -135,7 +104,10 @@ void rdpr_avx512(const Polyline& points,
     }
 }
 
-Polyline simplify_avx512(const Polyline& input, double tolerance) {
+PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance) {
+    // wire for SoA
+    // auto soa = to_soa(input);
+
     if (input.size() <= 2) {
         return input;
     }
@@ -152,12 +124,13 @@ Polyline simplify_avx512(const Polyline& input, double tolerance) {
     rdpr_avx512(input, 0, input.size() - 1, tolerance_sq, keep);
     
     // Build the result
-    Polyline result;
+    PolylineSoA result;
+    // auto aos = to_aos(soa);
     result.reserve(input.size());  // Upper bound
     
     for (size_t i = 0; i < input.size(); ++i) {
         if (keep[i]) {
-            result.push_back(input[i]);
+            result.push_back(input[i].x, input[i].y);
         }
     }
     

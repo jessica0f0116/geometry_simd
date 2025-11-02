@@ -16,7 +16,7 @@ namespace {
  * @param tolerance Squared tolerance threshold
  * @param keep Bitmask of which points to keep
  */
-void douglas_peucker_recursive(const Polyline& points,
+void douglas_peucker_recursive(const PolylineSoA& points,
                                size_t start,
                                size_t end,
                                double tolerance_sq,
@@ -25,8 +25,8 @@ void douglas_peucker_recursive(const Polyline& points,
         return;
     }
     
-    const Point& p_start = points[start];
-    const Point& p_end = points[end];
+    auto p_start = points[start];
+    auto p_end = points[end];
     
     // Find the point with maximum distance
     double max_dist_sq = 0.0;
@@ -55,7 +55,7 @@ void douglas_peucker_recursive(const Polyline& points,
 
 } // anonymous namespace
 
-Polyline simplify_scalar(const Polyline& input, double tolerance) {
+PolylineSoA simplify_scalar(const PolylineSoA& input, double tolerance) {
     if (input.size() <= 2) {
         return input;
     }
@@ -72,12 +72,12 @@ Polyline simplify_scalar(const Polyline& input, double tolerance) {
     douglas_peucker_recursive(input, 0, input.size() - 1, tolerance_sq, keep);
     
     // Build the result
-    Polyline result;
+    PolylineSoA result;
     result.reserve(input.size());  // Upper bound
     
     for (size_t i = 0; i < input.size(); ++i) {
         if (keep[i]) {
-            result.push_back(input[i]);
+            result.push_back(input[i].x, input[i].y);
         }
     }
     
