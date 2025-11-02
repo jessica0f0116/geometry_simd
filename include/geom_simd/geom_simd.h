@@ -18,15 +18,31 @@ struct Point {
 struct PolylineSoA {
     std::vector<double> x;
     std::vector<double> y;
-    
-    size_t size() const { return x.size(); }
 
-    // Add this helper
+    size_t size() const { return x.size(); }
+    bool empty() const { return x.empty(); }
+        
+    void reserve(size_t n) {
+        x.reserve(n);
+        y.reserve(n);
+    }
+        
+    void push_back(double px, double py) {
+        x.push_back(px);
+        y.push_back(py);
+    }
+        
+    void clear() {
+        x.clear();
+        y.clear();
+    }
+        
     struct PointView {
         double x, y;
     };
-    
+        
     PointView operator[](size_t i) const {
+        // assert(i < size());
         return {x[i], y[i]};
     }
 };

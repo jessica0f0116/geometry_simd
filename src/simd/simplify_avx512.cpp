@@ -233,7 +233,10 @@ void rdpr_avx512_soa(const PolylineSoA& points,
 }
 
 Polyline simplify_avx512(const Polyline& input, double tolerance) {
-    if (input.size() <= 2) {
+    // wire for SoA
+    auto soa = to_soa(input);
+
+    if (soa.size() <= 2) {
         return input;
     }
     
@@ -241,22 +244,21 @@ Polyline simplify_avx512(const Polyline& input, double tolerance) {
     double tolerance_sq = tolerance * tolerance;
     
     // Mark which points to keep
-    std::vector<bool> keep(input.size(), false);
+    std::vector<bool> keep(soa.size(), false);
     keep[0] = true;  // Always keep first point
-    keep[input.size() - 1] = true;  // Always keep last point
+    keep[soa.size() - 1] = true;  // Always keep last point
     
-    // wire for SoA
-    auto soa = to_soa(input);
     // Run the recursive algorithm
-    rdpr_avx512_soa(soa, 0, input.size() - 1, tolerance_sq, keep);
+    rdpr_avx512_soa(soa, 0, soa.size() - 1, tolerance_sq, keep);
     
     // Build the result
     Polyline result;
-    result.reserve(input.size());  // Upper bound
+    auto aos = to_aos(soa);
+    result.reserve(aos.size());  // Upper bound
     
-    for (size_t i = 0; i < input.size(); ++i) {
+    for (size_t i = 0; i < aos.size(); ++i) {
         if (keep[i]) {
-            result.push_back(input[i]);
+            result.push_back(aos[i]);
         }
     }
     
