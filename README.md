@@ -19,6 +19,7 @@ SIMD-optimized geospatial algorithms for polygon and polyline operations. I want
 - [x] AVX-512 implementation
 - [ ] ARM NEON implementation
 - [ ] Property tests / integration tests
+- [ ] Add topology-preserving variant (Visvalingam-Whyatt is less amenable to vectorization, although we could broaden the goal to just being faster than GEOS)
 
 🍰 Polygon clipping algos
 - [ ] Add Polygon type
