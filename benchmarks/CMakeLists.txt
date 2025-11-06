@@ -25,9 +25,27 @@ target_include_directories(bench_simplify
         ${CMAKE_SOURCE_DIR}/include
 )
 
+# Intersection benchmark executable
+add_executable(bench_intersect
+    bench_intersect.cpp
+)
+
+target_link_libraries(bench_intersect
+    PRIVATE
+        geom_simd
+        benchmark::benchmark
+)
+
+target_include_directories(bench_intersect
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/include
+)
+
 # Set optimization flags for benchmarks
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(bench_simplify PRIVATE -O3 -march=native)
+    target_compile_options(bench_intersect PRIVATE -O3 -march=native)
 elseif(MSVC)
     target_compile_options(bench_simplify PRIVATE /O2 /arch:AVX2)
+    target_compile_options(bench_intersect PRIVATE /O2 /arch:AVX2)
 endif()

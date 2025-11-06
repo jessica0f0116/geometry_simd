@@ -17,6 +17,8 @@ include(GoogleTest)
 add_executable(unit_tests
     test_simplify.cpp
     test_geometry.cpp
+    test_polygon.cpp
+    test_intersect.cpp
 )
 
 target_link_libraries(unit_tests
