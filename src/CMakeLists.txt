@@ -3,6 +3,8 @@ set(GEOM_SIMD_SOURCES
     geometry.cpp
     simplify.cpp
     simplify_scalar.cpp
+    polygon.cpp
+    intersect_scalar.cpp
 )
 
 # SIMD-specific sources with appropriate compiler flags
@@ -13,7 +15,9 @@ endif()
 
 if(HAVE_AVX512)
     list(APPEND GEOM_SIMD_SOURCES simd/simplify_avx512.cpp)
+    list(APPEND GEOM_SIMD_SOURCES simd/intersect_avx512.cpp)
     set_source_files_properties(simd/simplify_avx512.cpp PROPERTIES COMPILE_FLAGS "-mavx512f")
+    set_source_files_properties(simd/intersect_avx512.cpp PROPERTIES COMPILE_FLAGS "-mavx512f")
 endif()
 
 if(HAVE_NEON)
