@@ -38,7 +38,6 @@ void rdpr_avx512(const PolylineSoA& points,
     // Precompute for all iterations
     __m512d dx = _mm512_sub_pd(x2, x1);
     __m512d dy = _mm512_sub_pd(y2, y1);
-    // **maybe this could be more efficient, probably fine?
     __m512d mag_sq = _mm512_fmadd_pd(dx, dx, _mm512_mul_pd(dy, dy));
     
     // Hot loop
@@ -76,7 +75,10 @@ void rdpr_avx512(const PolylineSoA& points,
     }
 
     // reduce outside the loop because it's horizontal
-    max_dist_sq = _mm512_reduce_max_pd(max_vec);
+    double simd_max = _mm512_reduce_max_pd(max_vec);
+    if (simd_max > max_dist_sq) {
+        max_dist_sq = simd_max;
+    }
     
     // Handle remainder with scalar code
     // Yes this is duplicative, maybe should refactor (make separate perpendicular_distance_outer?)
