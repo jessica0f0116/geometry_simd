@@ -32,16 +32,12 @@ void rdpr_avx512(const PolylineSoA& points,
     __m512d x2 = _mm512_set1_pd(p_end.x);
     __m512d y2 = _mm512_set1_pd(p_end.y);
 
-    // init vector of max dist to all lanes
-    __m512d max_vec = _mm512_set1_pd(0.0);
-    
     // Precompute for all iterations
     __m512d dx = _mm512_sub_pd(x2, x1);
     __m512d dy = _mm512_sub_pd(y2, y1);
     __m512d mag_sq = _mm512_fmadd_pd(dx, dx, _mm512_mul_pd(dy, dy));
     
     // Hot loop
-    // **refactor to separate function? cleaner
     for (; i + 7 < end; i += 8) {
         // contiguous stride 1 loads now :)
         __m512d px = _mm512_loadu_pd(&points.x[i]);
@@ -59,11 +55,8 @@ void rdpr_avx512(const PolylineSoA& points,
         // calculate perpendicular distance by dividing segment length and square of cross product
         __m512d dist_sq = _mm512_div_pd(_mm512_mul_pd(cross, cross), mag_sq);
         
-        // Find gt among these 8 
-        __mmask8 gt_mask = _mm512_cmp_pd_mask(dist_sq, max_vec, _CMP_GT_OQ);
         // keep if gt
-        max_vec = _mm512_mask_blend_pd(gt_mask, max_vec, dist_sq);
-        // **this should be fine for now
+        // this should be fine for now, better to handle max_idx in scalar
         double dists[8];
         _mm512_storeu_pd(dists, dist_sq);
         for (int j = 0; j < 8; ++j) {
@@ -73,15 +66,8 @@ void rdpr_avx512(const PolylineSoA& points,
             }
         }
     }
-
-    // reduce outside the loop because it's horizontal
-    double simd_max = _mm512_reduce_max_pd(max_vec);
-    if (simd_max > max_dist_sq) {
-        max_dist_sq = simd_max;
-    }
     
     // Handle remainder with scalar code
-    // Yes this is duplicative, maybe should refactor (make separate perpendicular_distance_outer?)
     for (; i < end; ++i) {
         // scalar version
         double dist_sq = perpendicular_distance(
@@ -105,9 +91,6 @@ void rdpr_avx512(const PolylineSoA& points,
 }
 
 PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance) {
-    // wire for SoA
-    // auto soa = to_soa(input);
-
     if (input.size() <= 2) {
         return input;
     }
@@ -125,7 +108,6 @@ PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance) {
     
     // Build the result
     PolylineSoA result;
-    // auto aos = to_aos(soa);
     result.reserve(input.size());  // Upper bound
     
     for (size_t i = 0; i < input.size(); ++i) {
