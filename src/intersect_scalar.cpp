@@ -4,12 +4,23 @@
 namespace geom {
 namespace intersect {
 
+/**
+ * Scalar line-line intersection algorithm
+ * 
+ * @param ax1 start of segment a
+ * @param ay1 start of segment a
+ * @param ax2 end of segment a
+ * @param ay2 end of segment a
+ * @param bx1 start of segment b
+ * @param by1 start of segment b
+ * @param bx2 end of segment b
+ * @param by2 end of segment b
+ */
 EdgeIntersection edge_intersect_scalar(
     double ax1, double ay1, double ax2, double ay2,
     double bx1, double by1, double bx2, double by2
 ) {
     /*
-     * Line-line intersection algorithm:
      * 
      * We want to find if two line segments intersect.
      * Represent each segment parametrically:
