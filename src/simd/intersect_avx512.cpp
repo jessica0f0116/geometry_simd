@@ -7,6 +7,17 @@
 namespace geom {
 namespace intersect {
 
+/**
+ * Vectorized line-edges intersection algorithm
+ * 
+ * @param ax1 start of segment a
+ * @param ay1 start of segment a
+ * @param ax2 end of segment a
+ * @param ay2 end of segment a
+ * @param b_vertices vector of vertices (size must be >= 9)
+ * @param start_idx index into vector (for multiple iterations)
+ * @param results intersection test for all 8 lanes
+ */
 void edge_intersect_avx512(
     double ax1, double ay1, double ax2, double ay2,
     const PolylineSoA& b_vertices,

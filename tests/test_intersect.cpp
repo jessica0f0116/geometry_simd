@@ -160,23 +160,8 @@ TEST(EdgeIntersectAVX512Test, NoIntersections) {
 TEST(EdgeIntersectAVX512Test, MixedIntersections) {
     // Some edges intersect, some don't
     PolylineSoA b_vertices;
-    // Create X pattern around test edge
-    b_vertices.x = {0, 10,   // Edge 0: intersects
-                    20, 30,  // Edge 1: no intersection (far away)
-                    10, 0,   // Edge 2: intersects (crosses opposite way)
-                    0, 10,   // Edge 3: intersects
-                    40, 50,  // Edge 4-7: no intersections
-                    50, 60,
-                    60, 70,
-                    70, 80};
-    b_vertices.y = {0, 10,
-                    0, 10,
-                    0, 10,
-                    5, 5,    // Horizontal, intersects
-                    0, 10,
-                    0, 10,
-                    0, 10,
-                    0, 10};
+    b_vertices.x = {0, 10, 20, 30, 10, 0, 0, 10, 40};
+    b_vertices.y = {0, 10, 0, 10, 0, 10, 5, 5, 0};
     
     // Test edge: (5, 0) to (5, 10) - vertical line
     double ax1 = 5, ay1 = 0, ax2 = 5, ay2 = 10;
@@ -184,14 +169,14 @@ TEST(EdgeIntersectAVX512Test, MixedIntersections) {
     EdgeIntersection results[8];
     edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
     
-    EXPECT_TRUE(results[0].intersects);   // Crosses
-    EXPECT_FALSE(results[1].intersects);  // Far away
-    EXPECT_TRUE(results[2].intersects);   // Crosses
-    EXPECT_TRUE(results[3].intersects);   // Horizontal crosses vertical
-    EXPECT_FALSE(results[4].intersects);  // Far away
-    EXPECT_FALSE(results[5].intersects);  // Far away
-    EXPECT_FALSE(results[6].intersects);  // Far away
-    EXPECT_FALSE(results[7].intersects);  // Far away
+    EXPECT_TRUE(results[0].intersects);   // {(0,0)(10,10)} does cross
+    EXPECT_FALSE(results[1].intersects);  // {(10,10)(20,0)} doesn't cross
+    EXPECT_FALSE(results[2].intersects);   // {(20,0)(30,10)} doesn't cross
+    EXPECT_FALSE(results[3].intersects);   // {(30,10)(10,0)} doesn't cross
+    EXPECT_TRUE(results[4].intersects);  // {(10,0)(0,10)} does cross
+    EXPECT_FALSE(results[5].intersects);  // {(0,10)(0,5)} doesn't cross
+    EXPECT_TRUE(results[6].intersects);  // {(0,5)(10,5)} horizontal, does cross
+    EXPECT_FALSE(results[7].intersects);  // {(10,5)(40,0)} far away, doesn't cross
 }
 
 #endif // HAVE_AVX512

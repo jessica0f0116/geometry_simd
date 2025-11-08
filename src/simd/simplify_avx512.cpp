@@ -6,6 +6,15 @@ namespace internal {
 
 #ifdef HAVE_AVX512
 
+/**
+ * Recursive Douglas-Peucker implementation in AVX-512
+ * 
+ * @param points Input points
+ * @param start Start index (inclusive)
+ * @param end End index (inclusive)
+ * @param tolerance_sq Squared tolerance threshold
+ * @param keep Bitmask of which points to keep
+ */
 void rdpr_avx512(const PolylineSoA& points,
                                size_t start,
                                size_t end,
