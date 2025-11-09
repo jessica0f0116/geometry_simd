@@ -7,19 +7,8 @@
 namespace geom {
 namespace intersect {
 
-/**
- * Vectorized line-edges intersection algorithm
- * 
- * @param ax1 start of segment a
- * @param ay1 start of segment a
- * @param ax2 end of segment a
- * @param ay2 end of segment a
- * @param b_vertices vector of vertices (size must be >= 9)
- * @param start_idx index into vector (for multiple iterations)
- * @param results intersection test for all 8 lanes
- */
 void edge_intersect_avx512(
-    double ax1, double ay1, double ax2, double ay2,
+    const Point& a1, const Point& a2,
     const PolylineSoA& b_vertices,
     size_t start_idx,
     EdgeIntersection results[8]
@@ -35,10 +24,10 @@ void edge_intersect_avx512(
      */
     
     // Broadcast edge A's coordinates to all lanes
-    __m512d vax1 = _mm512_set1_pd(ax1);
-    __m512d vay1 = _mm512_set1_pd(ay1);
-    __m512d vax2 = _mm512_set1_pd(ax2);
-    __m512d vay2 = _mm512_set1_pd(ay2);
+    __m512d vax1 = _mm512_set1_pd(a1.x);
+    __m512d vay1 = _mm512_set1_pd(a1.y);
+    __m512d vax2 = _mm512_set1_pd(a2.x);
+    __m512d vay2 = _mm512_set1_pd(a2.y);
     
     // Direction vector for edge A: (dx_a, dy_a)
     __m512d dx_a = _mm512_sub_pd(vax2, vax1);

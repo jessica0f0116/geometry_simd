@@ -21,8 +21,8 @@ TEST(EdgeIntersectTest, SimpleIntersection) {
     // Two edges that clearly intersect at (5, 5)
     // Edge A: (0,0) to (10,10)
     // Edge B: (0,10) to (10,0)
-    auto result = edge_intersect_scalar(0, 0, 10, 10, 
-                                        0, 10, 10, 0);
+    auto result = edge_intersect_scalar({0, 0}, {10, 10}, 
+                                        {0, 10}, {10, 0});
     
     EXPECT_TRUE(result.intersects);
     EXPECT_NEAR(result.x, 5.0, 1e-6);
@@ -33,20 +33,20 @@ TEST(EdgeIntersectTest, SimpleIntersection) {
 
 TEST(EdgeIntersectTest, NoIntersection) {
     // Parallel horizontal edges
-    auto result = edge_intersect_scalar(0, 0, 10, 0,
-                                        0, 5, 10, 5);
+    auto result = edge_intersect_scalar({0, 0}, {10, 0},
+                                        {0, 5}, {10, 5});
     EXPECT_FALSE(result.intersects);
     
     // Edges that would intersect if extended, but don't overlap
-    result = edge_intersect_scalar(0, 0, 5, 5,
-                                   6, 0, 10, 10);
+    result = edge_intersect_scalar({0, 0}, {5, 5},
+                                   {6, 0}, {10, 10});
     EXPECT_FALSE(result.intersects);
 }
 
 TEST(EdgeIntersectTest, TouchingAtEndpoint) {
     // Edges meet at (5, 5)
-    auto result = edge_intersect_scalar(0, 0, 5, 5,
-                                        5, 5, 10, 0);
+    auto result = edge_intersect_scalar({0, 0}, {5, 5},
+                                        {5, 5}, {10, 0});
     
     EXPECT_TRUE(result.intersects);
     EXPECT_NEAR(result.x, 5.0, 1e-6);
@@ -57,15 +57,15 @@ TEST(EdgeIntersectTest, TouchingAtEndpoint) {
 
 TEST(EdgeIntersectTest, ParallelEdges) {
     // Parallel but not collinear
-    auto result = edge_intersect_scalar(0, 0, 10, 0,
-                                        0, 1, 10, 1);
+    auto result = edge_intersect_scalar({0, 0}, {10, 0},
+                                        {0, 1}, {10, 1});
     EXPECT_FALSE(result.intersects);
 }
 
 TEST(EdgeIntersectTest, CollinearEdges) {
     // Overlapping collinear edges - typically returns false in most implementations
-    auto result = edge_intersect_scalar(0, 0, 10, 0,
-                                        5, 0, 15, 0);
+    auto result = edge_intersect_scalar({0, 0}, {10, 0},
+                                        {5, 0}, {15, 0});
     // Behavior is implementation-defined for collinear
     // Our implementation returns false (parallel check)
     EXPECT_FALSE(result.intersects);
@@ -73,8 +73,8 @@ TEST(EdgeIntersectTest, CollinearEdges) {
 
 TEST(EdgeIntersectTest, VerticalEdges) {
     // Vertical edge intersecting horizontal
-    auto result = edge_intersect_scalar(5, 0, 5, 10,   // Vertical
-                                        0, 5, 10, 5);   // Horizontal
+    auto result = edge_intersect_scalar({5, 0}, {5, 10},   // Vertical
+                                        {0, 5}, {10, 5});   // Horizontal
     
     EXPECT_TRUE(result.intersects);
     EXPECT_NEAR(result.x, 5.0, 1e-6);
@@ -83,8 +83,8 @@ TEST(EdgeIntersectTest, VerticalEdges) {
 
 TEST(EdgeIntersectTest, TIntersection) {
     // T-shaped intersection: edge B ends at edge A
-    auto result = edge_intersect_scalar(0, 0, 10, 0,   // Horizontal
-                                        5, -5, 5, 0);   // Vertical ending at edge A
+    auto result = edge_intersect_scalar({0, 0}, {10, 0},   // Horizontal
+                                        {5, -5}, {5, 0});   // Vertical ending at edge A
     
     EXPECT_TRUE(result.intersects);
     EXPECT_NEAR(result.x, 5.0, 1e-6);
@@ -104,14 +104,14 @@ TEST(EdgeIntersectAVX512Test, ConsistencyWithScalar) {
     
     // Get SIMD results (tests 8 edges)
     EdgeIntersection simd_results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, simd_results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, simd_results);
     
     // Compare with scalar results
     for (int i = 0; i < 8; ++i) {
         auto scalar_result = edge_intersect_scalar(
-            ax1, ay1, ax2, ay2,
-            b_vertices.x[i], b_vertices.y[i],
-            b_vertices.x[i+1], b_vertices.y[i+1]
+            {ax1, ay1}, {ax2, ay2},
+            {b_vertices.x[i], b_vertices.y[i]},
+            {b_vertices.x[i+1], b_vertices.y[i+1]}
         );
         
         EXPECT_TRUE(edge_intersections_equal(scalar_result, simd_results[i]))
@@ -129,7 +129,7 @@ TEST(EdgeIntersectAVX512Test, MultipleIntersections) {
     double ax1 = 5, ay1 = 0, ax2 = 5, ay2 = 20;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     // First edge (0,10)-(10,0) should intersect
     EXPECT_TRUE(results[0].intersects);
@@ -149,7 +149,7 @@ TEST(EdgeIntersectAVX512Test, NoIntersections) {
     double ax1 = 0, ay1 = 0, ax2 = 10, ay2 = 0;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     // None should intersect
     for (int i = 0; i < 8; ++i) {
@@ -167,7 +167,7 @@ TEST(EdgeIntersectAVX512Test, MixedIntersections) {
     double ax1 = 5, ay1 = 0, ax2 = 5, ay2 = 10;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     EXPECT_TRUE(results[0].intersects);   // {(0,0)(10,10)} does cross
     EXPECT_FALSE(results[1].intersects);  // {(10,10)(20,0)} doesn't cross

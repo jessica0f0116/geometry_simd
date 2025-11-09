@@ -36,9 +36,9 @@ static void BM_EdgeIntersect_Scalar(benchmark::State& state) {
         // Test against all edges in polygon B
         for (size_t i = 0; i < n_edges; ++i) {
             auto result = edge_intersect_scalar(
-                ax1, ay1, ax2, ay2,
-                poly_b.x[i], poly_b.y[i],
-                poly_b.x[i+1], poly_b.y[i+1]
+                {ax1, ay1}, {ax2, ay2},
+                {poly_b.x[i], poly_b.y[i]},
+                {poly_b.x[i+1], poly_b.y[i+1]}
             );
             
             if (result.intersects) {
@@ -75,7 +75,7 @@ static void BM_EdgeIntersect_AVX512(benchmark::State& state) {
         // Process 8 edges at a time
         size_t i = 0;
         for (; i + 7 < n_edges; i += 8) {
-            edge_intersect_avx512(ax1, ay1, ax2, ay2, poly_b, i, results);
+            edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, poly_b, i, results);
             
             for (int j = 0; j < 8; ++j) {
                 if (results[j].intersects) {
@@ -87,9 +87,9 @@ static void BM_EdgeIntersect_AVX512(benchmark::State& state) {
         // Handle remainder with scalar
         for (; i < n_edges; ++i) {
             auto result = edge_intersect_scalar(
-                ax1, ay1, ax2, ay2,
-                poly_b.x[i], poly_b.y[i],
-                poly_b.x[i+1], poly_b.y[i+1]
+                {ax1, ay1}, {ax2, ay2},
+                {poly_b.x[i], poly_b.y[i]},
+                {poly_b.x[i+1], poly_b.y[i+1]}
             );
             
             if (result.intersects) {
@@ -124,10 +124,10 @@ static void BM_AllIntersections_Scalar(benchmark::State& state) {
         for (size_t i = 0; i + 1 < poly_a.size(); ++i) {
             for (size_t j = 0; j + 1 < poly_b.size(); ++j) {
                 auto result = edge_intersect_scalar(
-                    poly_a.x[i], poly_a.y[i],
-                    poly_a.x[i+1], poly_a.y[i+1],
-                    poly_b.x[j], poly_b.y[j],
-                    poly_b.x[j+1], poly_b.y[j+1]
+                    {poly_a.x[i], poly_a.y[i]},
+                    {poly_a.x[i+1], poly_a.y[i+1]},
+                    {poly_b.x[j], poly_b.y[j]},
+                    {poly_b.x[j+1], poly_b.y[j+1]}
                 );
                 
                 if (result.intersects) {
@@ -166,8 +166,8 @@ static void BM_AllIntersections_AVX512(benchmark::State& state) {
             size_t j = 0;
             for (; j + 8 < poly_b.size(); j += 8) {
                 edge_intersect_avx512(
-                    poly_a.x[i], poly_a.y[i],
-                    poly_a.x[i+1], poly_a.y[i+1],
+                    {poly_a.x[i], poly_a.y[i]},
+                    {poly_a.x[i+1], poly_a.y[i+1]},
                     poly_b, j, results
                 );
                 
@@ -181,10 +181,10 @@ static void BM_AllIntersections_AVX512(benchmark::State& state) {
             // Handle remainder
             for (; j + 1 < poly_b.size(); ++j) {
                 auto result = edge_intersect_scalar(
-                    poly_a.x[i], poly_a.y[i],
-                    poly_a.x[i+1], poly_a.y[i+1],
-                    poly_b.x[j], poly_b.y[j],
-                    poly_b.x[j+1], poly_b.y[j+1]
+                    {poly_a.x[i], poly_a.y[i]},
+                    {poly_a.x[i+1], poly_a.y[i+1]},
+                    {poly_b.x[j], poly_b.y[j]},
+                    {poly_b.x[j+1], poly_b.y[j+1]}
                 );
                 
                 if (result.intersects) {

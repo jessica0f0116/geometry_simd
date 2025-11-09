@@ -63,12 +63,13 @@ struct EdgeIntersection {
  * 
  * Algorithm: Solves the line-line intersection equations
  *   P = A1 + t*(A2 - A1) = B1 + u*(B2 - B1)
+ * @param a1, a2, b1, b2 Edges of the two line segments to test
  * 
  * @return EdgeIntersection with intersects=true if segments intersect in [0,1]
  */
 EdgeIntersection edge_intersect_scalar(
-    double ax1, double ay1, double ax2, double ay2,
-    double bx1, double by1, double bx2, double by2
+    const Point& a1, const Point& a2,
+    const Point& b1, const Point& b2
 );
 
 #ifdef HAVE_AVX512
@@ -77,7 +78,7 @@ EdgeIntersection edge_intersect_scalar(
  * 
  * Tests if edge A intersects with any of 8 edges from polygon B.
  * 
- * @param ax1, ay1, ax2, ay2 The single edge to test
+ * @param a1, a2 The single edge to test
  * @param b_vertices Vertices of polygon B (should have at least start_idx+9 vertices)
  * @param start_idx Starting index in b_vertices (will test edges [start_idx, start_idx+8))
  * @param results Output array of 8 EdgeIntersection results
@@ -90,7 +91,7 @@ EdgeIntersection edge_intersect_scalar(
  *         [start_idx+7 -> start_idx+8]
  */
 void edge_intersect_avx512(
-    double ax1, double ay1, double ax2, double ay2,
+    const Point& a1, const Point& a2,
     const PolylineSoA& b_vertices,
     size_t start_idx,
     EdgeIntersection results[8]
