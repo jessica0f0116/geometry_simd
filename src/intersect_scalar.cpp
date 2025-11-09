@@ -4,21 +4,9 @@
 namespace geom {
 namespace intersect {
 
-/**
- * Scalar line-line intersection algorithm
- * 
- * @param ax1 start of segment a
- * @param ay1 start of segment a
- * @param ax2 end of segment a
- * @param ay2 end of segment a
- * @param bx1 start of segment b
- * @param by1 start of segment b
- * @param bx2 end of segment b
- * @param by2 end of segment b
- */
 EdgeIntersection edge_intersect_scalar(
-    double ax1, double ay1, double ax2, double ay2,
-    double bx1, double by1, double bx2, double by2
+    const Point& a1, const Point& a2,
+    const Point& b1, const Point& b2
 ) {
     /*
      * 
@@ -40,10 +28,10 @@ EdgeIntersection edge_intersect_scalar(
      */
     
     // Direction vectors
-    double dx_a = ax2 - ax1;  // A2 - A1
-    double dy_a = ay2 - ay1;
-    double dx_b = bx2 - bx1;  // B2 - B1
-    double dy_b = by2 - by1;
+    double dx_a = a2.x - a1.x;  // A2 - A1
+    double dy_a = a2.y - a1.y;
+    double dx_b = b2.x - b1.x;  // B2 - B1
+    double dy_b = b2.y - b1.y;
     
     // Cross product (A2 - A1) × (B2 - B1)
     double denominator = dx_a * dy_b - dy_a * dx_b;
@@ -54,8 +42,8 @@ EdgeIntersection edge_intersect_scalar(
     }
     
     // Vector from A1 to B1
-    double dx_ab = bx1 - ax1;  // B1 - A1
-    double dy_ab = by1 - ay1;
+    double dx_ab = b1.x - a1.x;  // B1 - A1
+    double dy_ab = b1.y - a1.y;
     
     // Calculate t and u
     // t = (B1 - A1) × (B2 - B1) / denominator
@@ -69,8 +57,8 @@ EdgeIntersection edge_intersect_scalar(
     // Check if intersection point is within both segments
     if (t >= 0.0 && t <= 1.0 && u >= 0.0 && u <= 1.0) {
         // Calculate intersection point using parameter t on edge A
-        double ix = ax1 + t * dx_a;
-        double iy = ay1 + t * dy_a;
+        double ix = a1.x + t * dx_a;
+        double iy = a1.y + t * dy_a;
         
         return EdgeIntersection(true, t, u, ix, iy);
     }

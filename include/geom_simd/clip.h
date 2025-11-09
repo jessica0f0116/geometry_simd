@@ -63,12 +63,13 @@ struct EdgeIntersection {
  * 
  * Algorithm: Solves the line-line intersection equations
  *   P = A1 + t*(A2 - A1) = B1 + u*(B2 - B1)
+ * @param a1, a2, b1, b2 Points of the two line segments to test
  * 
  * @return EdgeIntersection with intersects=true if segments intersect in [0,1]
  */
 EdgeIntersection edge_intersect_scalar(
-    double ax1, double ay1, double ax2, double ay2,
-    double bx1, double by1, double bx2, double by2
+    const Point& a1, const Point& a2,
+    const Point& b1, const Point& b2
 );
 
 #ifdef HAVE_AVX512

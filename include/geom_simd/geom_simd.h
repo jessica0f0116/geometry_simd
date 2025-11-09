@@ -14,7 +14,6 @@ struct Point {
     Point(double x_, double y_) : x(x_), y(y_) {}
 };
 
-// Add new SoA type for now
 struct PolylineSoA {
     std::vector<double> x;
     std::vector<double> y;
