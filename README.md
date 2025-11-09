@@ -22,10 +22,10 @@ SIMD-optimized geospatial algorithms for polygon and polyline operations. I want
 - [ ] Add topology-preserving variant (Visvalingam-Whyatt is less amenable to vectorization, although we could broaden the goal to just being faster than GEOS)
 
 🍰 Polygon clipping algos
-- [ ] Add Polygon type
+- [x] Add Polygon type
 - [ ] Implement basic poly operations (area+contains point)
-- [ ] Add edge intersections (scalar+AVX)
-- [ ] Unit tests and benchmarks for edge intersection
+- [x] Add edge intersections (scalar+AVX)
+- [x] Unit tests and benchmarks for edge intersection
 - [ ] Implement Sutherland-Hodgman (convex only) and vectorize core loops
 - [ ] Implement Greiner-Hormann and vectorize intersection finding
 - [ ] Edge cases (degenerate polys, touching edges, and so forth)
