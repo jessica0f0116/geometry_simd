@@ -75,7 +75,7 @@ static void BM_EdgeIntersect_AVX512(benchmark::State& state) {
         // Process 8 edges at a time
         size_t i = 0;
         for (; i + 7 < n_edges; i += 8) {
-            edge_intersect_avx512(ax1, ay1, ax2, ay2, poly_b, i, results);
+            edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, poly_b, i, results);
             
             for (int j = 0; j < 8; ++j) {
                 if (results[j].intersects) {
@@ -166,8 +166,8 @@ static void BM_AllIntersections_AVX512(benchmark::State& state) {
             size_t j = 0;
             for (; j + 8 < poly_b.size(); j += 8) {
                 edge_intersect_avx512(
-                    poly_a.x[i], poly_a.y[i],
-                    poly_a.x[i+1], poly_a.y[i+1],
+                    {poly_a.x[i], poly_a.y[i]},
+                    {poly_a.x[i+1], poly_a.y[i+1]},
                     poly_b, j, results
                 );
                 

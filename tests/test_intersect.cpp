@@ -104,7 +104,7 @@ TEST(EdgeIntersectAVX512Test, ConsistencyWithScalar) {
     
     // Get SIMD results (tests 8 edges)
     EdgeIntersection simd_results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, simd_results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, simd_results);
     
     // Compare with scalar results
     for (int i = 0; i < 8; ++i) {
@@ -129,7 +129,7 @@ TEST(EdgeIntersectAVX512Test, MultipleIntersections) {
     double ax1 = 5, ay1 = 0, ax2 = 5, ay2 = 20;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     // First edge (0,10)-(10,0) should intersect
     EXPECT_TRUE(results[0].intersects);
@@ -149,7 +149,7 @@ TEST(EdgeIntersectAVX512Test, NoIntersections) {
     double ax1 = 0, ay1 = 0, ax2 = 10, ay2 = 0;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     // None should intersect
     for (int i = 0; i < 8; ++i) {
@@ -167,7 +167,7 @@ TEST(EdgeIntersectAVX512Test, MixedIntersections) {
     double ax1 = 5, ay1 = 0, ax2 = 5, ay2 = 10;
     
     EdgeIntersection results[8];
-    edge_intersect_avx512(ax1, ay1, ax2, ay2, b_vertices, 0, results);
+    edge_intersect_avx512({ax1, ay1}, {ax2, ay2}, b_vertices, 0, results);
     
     EXPECT_TRUE(results[0].intersects);   // {(0,0)(10,10)} does cross
     EXPECT_FALSE(results[1].intersects);  // {(10,10)(20,0)} doesn't cross
