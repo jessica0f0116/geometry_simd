@@ -71,9 +71,12 @@ PolylineSoA simplify_scalar(const PolylineSoA& input, double tolerance) {
     // Run the recursive algorithm
     douglas_peucker_recursive(input, 0, input.size() - 1, tolerance_sq, keep);
     
+    // count how many points we're actually keeping
+    size_t kept_count = std::count(keep.begin(), keep.end(), true);
+    
     // Build the result
     PolylineSoA result;
-    result.reserve(input.size());  // Upper bound
+    result.reserve(kept_count);  // Upper bound
     
     for (size_t i = 0; i < input.size(); ++i) {
         if (keep[i]) {

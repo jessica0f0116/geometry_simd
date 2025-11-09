@@ -1,5 +1,6 @@
 #include "geom_simd/internal/simplify_internal.h"
 #include <immintrin.h>
+#include <algorithm>
 
 namespace geom {
 namespace internal {
@@ -114,10 +115,14 @@ PolylineSoA simplify_avx512(const PolylineSoA& input, double tolerance) {
     
     // Run the recursive algorithm
     rdpr_avx512(input, 0, input.size() - 1, tolerance_sq, keep);
+
+    // count how many points we're actually keeping
+    size_t kept_count = std::count(keep.begin(), keep.end(), true);
     
     // Build the result
     PolylineSoA result;
-    result.reserve(input.size());  // Upper bound
+    // only reserve the kept size
+    result.reserve(kept_count);  // Upper bound
     
     for (size_t i = 0; i < input.size(); ++i) {
         if (keep[i]) {
