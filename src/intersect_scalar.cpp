@@ -25,6 +25,10 @@ EdgeIntersection edge_intersect_scalar(
      * Where × is the 2D cross product: (x1,y1) × (x2,y2) = x1*y2 - y1*x2
      * 
      * Segments intersect if both t and u are in [0, 1]
+     * Assumes the following:
+     * - Coordinates in reasonable range (not astronomical distances)
+     * - Epsilon tolerance of 1e-10 for degeneracy checks
+     * - May produce inconsistent results for nearly-degenerate cases
      */
     
     // Direction vectors

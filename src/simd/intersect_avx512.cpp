@@ -20,7 +20,11 @@ void edge_intersect_avx512(
      * Each edge in B is formed by consecutive vertices:
      *   Edge i: (b_vertices[start_idx+i], b_vertices[start_idx+i+1])
      * 
-     * We'll broadcast edge A's coordinates and load 8 edges from B in parallel.
+     * We'll broadcast edge A's coordinates and load 8 edges from B in parallel.     
+     * Assumes the following:
+     * - Coordinates in reasonable range (not astronomical distances)
+     * - Epsilon tolerance of 1e-10 for degeneracy checks
+     * - May produce inconsistent results for nearly-degenerate cases
      */
     
     // Broadcast edge A's coordinates to all lanes
